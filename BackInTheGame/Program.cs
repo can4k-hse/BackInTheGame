@@ -4,11 +4,17 @@
     {
         public static void Main()
         {
-            //CSVTable table = new("C:/Users/Alexander/Desktop/Project2/computer_games.csv", ',', 6);
-            //foreach (var record in table.Records)
-            //{
-            //    Console.WriteLine(string.Join(" ", record[5]));
-            //}
+            CSVTable table = new();
+            _ = table.ReadCSV("C:/Users/Alexander/Desktop/Project2/computer_games.csv", ',', 6);
+
+            GamesStatistics gs = new();
+
+            foreach (var record in table.Records)
+            {
+                Game game = new (record);
+                gs.AddGame(game);
+                Console.WriteLine(game.GetRecord('_'));
+            }
         }
     }
 }

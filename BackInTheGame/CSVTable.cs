@@ -4,8 +4,8 @@ namespace BackInTheGame
 {
 
     /// <summary>
-    /// Класс предоставляющий интерфейс для работы с CSV таблицами.
-    /// </summary>
+    /// Класс предоставляющий интерфейс для работы с CSV таблицами разного типа.
+    /// </summary>    
     public class CSVTable
     {
         // Общие для файлов CSV константы.
@@ -75,7 +75,8 @@ namespace BackInTheGame
             try
             {
                 records = File.ReadAllText(path).Split(LinesBreak);
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 throw new Exception("При чтении файла произошла ошибка");
             }
@@ -83,7 +84,7 @@ namespace BackInTheGame
             // Обрабатываем записи и оставляем только удовлетворяющие количеству столбцов.
             return [..records
                 .Select(record => ConvertRecord(record, separator))
-                .Where(record => record.Length == columnsCount) 
+                .Where(record => record.Length == columnsCount)
             ];
         }
 
@@ -142,13 +143,18 @@ namespace BackInTheGame
             try
             {
                 _records = GetRecordsFromCSVFile(path, separator, columnCount);
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return false;
             }
-            
+
             _tableHeader = _records[0];
+
+            // Избавляемся от записи из заголовка.
+            _records = _records[1..];
+
             ColumnCount = _records.Length - 1;
             return true;
         }
