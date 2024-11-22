@@ -30,12 +30,12 @@ namespace BackInTheGame
 
         public static bool operator <(YearAndMonthDate a, YearAndMonthDate b)
         {
-            return a.Year < b.Year || (a.Year == b.Year  && a.Month < b.Month);
+            return (int)a < (int)b;
         }
 
         public static bool operator >(YearAndMonthDate a, YearAndMonthDate b)
         {
-            return a.Year > b.Year || (a.Year == b.Year && a.Month > b.Month);
+            return (int)a > (int)b;
         }
 
         /// <summary>
@@ -129,6 +129,16 @@ namespace BackInTheGame
         public override string ToString()
         {
             return Year + GetMonthName(Month);
+        }
+
+
+        /// <summary>
+        /// Возвращает количество месяцев в дате в нашей эре
+        /// </summary>
+        /// <param name="game"></param>
+        public static implicit operator int(YearAndMonthDate date)
+        {
+            return date.Month + (date.Year * 12);
         }
     }
 }

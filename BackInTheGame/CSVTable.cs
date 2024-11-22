@@ -110,6 +110,11 @@ namespace BackInTheGame
             this.separator = separator;
         }
 
+        public CSVTable(char separator, int columnCount, string[] header) : this(separator, columnCount)
+        {
+            _tableHeader = header;
+        }
+
         /// <summary>
         /// Создает CSVTable из CSV файла.
         /// </summary>
@@ -177,6 +182,7 @@ namespace BackInTheGame
         public string GetRecordLine(string[] record)
         {
             StringBuilder sb = new();
+
             foreach (string part in record)
             {
                 _ = part.Contains(" ") || part.Contains(",") ? sb.Append($"{QuoteBorder}{part}{QuoteBorder}") : sb.Append(part);
@@ -203,6 +209,9 @@ namespace BackInTheGame
 
             // Генерируем строку для вывода
             StringBuilder sb = new();
+
+            _ = sb.AppendLine(GetRecordLine(_tableHeader));
+
             foreach (string[] record in _records)
             {
                 _ = sb.AppendLine(GetRecordLine(record));

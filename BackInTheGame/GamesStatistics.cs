@@ -1,4 +1,6 @@
-﻿namespace BackInTheGame
+﻿using System.Dynamic;
+
+namespace BackInTheGame
 {
     public class GamesStatistics
     {
@@ -97,7 +99,7 @@
         /// </summary>
         /// <param name="operatingSystem"></param>
         /// <returns></returns>
-        private Game[] GetGamesByOS(string operatingSystem)
+        public Game[] GetGamesByOS(string operatingSystem)
         {
             return [.. _games.Where(game => game.OperatingSystem == operatingSystem)];
         }
@@ -173,6 +175,39 @@
             return producerItem.Key;
         }
 
+        /// <summary>
+        /// Вычисляет средний год выпуска игры
+        /// </summary>
+        /// <exception cref="DivideByZeroException"></exception>
+        /// <returns></returns>
+        public int GetAverageReleaseYear()
+        {
+            try
+            {
+                int yearSum = 0;
+
+                foreach (Game game in _games)
+                {
+                    yearSum += game.DateReleased.Year;
+                }
+
+                return yearSum / _games.Count;
+            } catch(DivideByZeroException)
+            {
+                throw new Exception("Невозможно определить средний год");
+            }
+        }
         
+
+        /// <summary>
+        /// Выдает список игр с годом выхода большим, чем данный
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+
+        public Game[] GetGamesReleaseYearBigger(int year)
+        {
+            return [.. _games.Where(game => game.DateReleased.Year > year)];
+        }
     }
 }

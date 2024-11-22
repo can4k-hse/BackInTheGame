@@ -115,10 +115,5 @@
                 return "";
             }
         }
-
-        internal static void DisplayLine(object v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
