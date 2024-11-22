@@ -10,9 +10,9 @@ namespace BackInTheGame
     {
         // Общие для файлов CSV константы.
         private const char QuoteBorder = '"';
-        private const char LinesBreak = '\n';
         private const string CSVFormat = ".csv";
 
+        private char separator = ',';
 
         /// <summary>
         /// Преобразует данную строковую запись в массив разделеных сеператором строк, игнорируя сепаратор в цитатах.
@@ -20,7 +20,7 @@ namespace BackInTheGame
         /// <param name="record">Строковая запись в формате записи CSV.</param>
         /// <param name="separator">Сепаратор, разделяющий данные разных столбцов.</param>
         /// <returns></returns>
-        private static string[] ConvertRecord(string record, char separator)
+        public static string[] ConvertRecord(string record, char separator)
         {
             List<string> recordParts = [];
 
@@ -54,6 +54,20 @@ namespace BackInTheGame
             return [.. recordParts];
         }
 
+        /// <summary>
+        /// Добавляет новую запись в конец
+        /// </summary>
+        /// <param name="record"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void AddRecord(string[] param)
+        {
+            if (param.Length != ColumnCount)
+            {
+                throw new ArgumentException("Неверная длина записи");
+            }
+
+            _records.Add(param);
+        }
 
         /// <summary>
         /// Считывает, обрабатывает и возвращает массив записей из CSV файла.
@@ -64,7 +78,7 @@ namespace BackInTheGame
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Exception"></exception>
         /// <returns></returns>
-        private static string[][] GetRecordsFromCSVFile(string path, char separator, int columnsCount)
+        private static List<string[]> GetRecordsFromCSVFile(string path, char separator, int columnsCount)
         {
             if (Path.GetExtension(path) != CSVFormat)
             {
@@ -74,7 +88,7 @@ namespace BackInTheGame
             string[] records;
             try
             {
-                records = File.ReadAllText(path).Split(LinesBreak);
+                records = File.ReadAllText(path).Split(Environment.NewLine);
             }
             catch (Exception)
             {
@@ -88,8 +102,13 @@ namespace BackInTheGame
             ];
         }
 
-
         public CSVTable() { }
+
+        public CSVTable(char separator, int columnCount) 
+        {
+            ColumnCount = columnCount;
+            this.separator = separator;
+        }
 
         /// <summary>
         /// Создает CSVTable из CSV файла.
@@ -99,9 +118,8 @@ namespace BackInTheGame
         /// <param name="columnCount">Количество столбцов таблицы</param>
         public CSVTable(string path, char separator, int columnCount)
         {
-            _ = ReadCSV(path, separator, columnCount);
+            ReadCSV(path, separator, columnCount);
         }
-
 
         /// <summary>
         /// Число стобцов в таблице.
@@ -114,14 +132,14 @@ namespace BackInTheGame
 
 
         // Массив записей CSV таблицы.
-        private string[][] _records = [];
+        private List<string[]> _records = [];
         public string[][] Records
         {
             get // Реализуем возвращение глубокой копии массива записей.
             {
-                string[][] deepCopy = new string[_records.Length][];
+                string[][] deepCopy = new string[_records.Count][];
 
-                for (int i = 0; i < _records.Length; i++)
+                for (int i = 0; i < _records.Count; i++)
                 {
                     deepCopy[i] = (string[])_records[i].Clone();
                 }
@@ -137,26 +155,74 @@ namespace BackInTheGame
         /// <param name="path"></param>
         /// <param name="separator"></param>
         /// <param name="columnCount"></param>
-        /// <returns>Успешность записи CSV таблицы.</returns>
-        public bool ReadCSV(string path, char separator, int columnCount)
+        public void ReadCSV(string path, char separator, int columnCount)
         {
-            try
-            {
-                _records = GetRecordsFromCSVFile(path, separator, columnCount);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
+            // Обновляем значение separator.
+            this.separator = separator;
+
+            _records = GetRecordsFromCSVFile(path, separator, columnCount);
 
             _tableHeader = _records[0];
 
             // Избавляемся от записи из заголовка.
             _records = _records[1..];
 
-            ColumnCount = _records.Length - 1;
-            return true;
+            ColumnCount = _records.Count - 1;
+        }
+
+        /// <summary>
+        /// Создает запсись строки.
+        /// </summary>
+        /// <param name="record"></param>
+        public string GetRecordLine(string[] record)
+        {
+            StringBuilder sb = new();
+            foreach (string part in record)
+            {
+                _ = part.Contains(" ") || part.Contains(",") ? sb.Append($"{QuoteBorder}{part}{QuoteBorder}") : sb.Append(part);
+                _ = sb.Append(separator);
+            }
+
+            _ = sb.Remove(sb.Length - 1, 1);
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Записывает записи в CSV файл.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception"></exception>
+        public void WriteCSV(string path)
+        {
+            if (Path.GetExtension(path) != CSVFormat)
+            {
+                throw new ArgumentException("Указан неверный путь к CSV файлу");
+            }
+
+            // Генерируем строку для вывода
+            StringBuilder sb = new();
+            foreach (string[] record in _records)
+            {
+                _ = sb.AppendLine(GetRecordLine(record));
+            }
+
+            try
+            {
+                File.WriteAllText(path, sb.ToString());
+            } catch(Exception)
+            {
+                throw new Exception("При выгрузке данных произошла ошибка");
+            }
+        }
+
+        public void DisplayCSV()
+        {
+            foreach (string[] record in _records)
+            {
+                Display.DisplayLine(GetRecordLine(record));
+            }
         }
     }
 }

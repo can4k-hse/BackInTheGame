@@ -1,10 +1,16 @@
-﻿using System.Linq;
-
-namespace BackInTheGame
+﻿namespace BackInTheGame
 {
     public class GamesStatistics
     {
-        private readonly List<Game> _games = [];
+        private List<Game> _games = [];
+
+        /// <summary>
+        /// Отчищает список игр.
+        /// </summary>
+        public void Clear()
+        {
+            _games = [];
+        }
 
         /// <summary>
         /// Добавляет игру в список.
@@ -26,13 +32,52 @@ namespace BackInTheGame
         }
 
         /// <summary>
+        /// Вовзвращает массив разработчиков для всех игр.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetGamesProducers()
+        {
+            HashSet<string> hs = [];
+            foreach(Game game in _games)
+            {
+                _ = hs.Add(game.Producer);
+            }
+            return [.. hs];
+        }
+
+
+        /// <summary>
+        /// Вовзвращает массив жанров для всех игр.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetGamesGenres()
+        {
+            HashSet<string> hs = [];
+            foreach(Game game in _games)
+            {
+                _ = hs.Add(game.Genre);
+            }
+            return [.. hs];
+        }
+
+        /// <summary>
         /// Возвращает массив игр данного производителя.
         /// </summary>
         /// <param name="producer"></param>
         /// <returns></returns>
-        public Game[] GetGamesByProducer(string producer = "Maxis")
+        public Game[] GetGamesByProducer(string producer)
         {
             return [.. _games.Where(game => game.Producer == producer)];
+        }
+
+        /// <summary>
+        /// Возвращает массив игр данного жанра.
+        /// </summary>
+        /// <param name="genre"></param>
+        /// <returns></returns>
+        public Game[] GetGamesByGenre(string genre)
+        {
+            return [.. _games.Where(game => game.Genre == genre)];
         }
 
         /// <summary>
@@ -58,29 +103,29 @@ namespace BackInTheGame
         }
 
         /// <summary>
-        /// Возвращает саму новую игру.
+        /// Возвращает саму ранюю игру.
         /// </summary>
         /// <param name="OperatingSystem"></param>
         /// <param name="Genre"></param>
         /// <returns></returns>
-        public Game? GetMostRecentGame(string OperatingSystem = "Microsoft Windows", string Genre = "First-person shooter")
+        public Game GetOldestGame(string OperatingSystem = "Microsoft Windows", string Genre = "First-person shooter")
         {
             if (_games.Count == 0)
             {
-                return null;
+                throw new Exception();
             }
 
             // Берем некоторое значение по умолчанию.
             Game game = _games[0];
             for (int i = 1; i < _games.Count; i++)
             {
-                if (game.Genre != Genre || game.OperatingSystem != OperatingSystem)
+                if (_games[i].Genre != Genre || _games[i].OperatingSystem != OperatingSystem)
                 {
                     continue;
                 }
 
                 // Пробуем обновить игру.
-                if (game.DateReleased < _games[i].DateReleased)
+                if (game.DateReleased > _games[i].DateReleased)
                 {
                     game = _games[i];
                 }
@@ -100,7 +145,13 @@ namespace BackInTheGame
 
             foreach(Game game in  _games)
             {
-                producerGamesNumber[game.Producer] += 1;
+                if (!producerGamesNumber.ContainsKey(game.Producer))
+                {
+                    producerGamesNumber[game.Producer] = 1;
+                } else
+                {
+                    producerGamesNumber[game.Producer] += 1;
+                }
             }
 
             if (producerGamesNumber.Count == 0)
@@ -121,5 +172,7 @@ namespace BackInTheGame
 
             return producerItem.Key;
         }
+
+        
     }
 }

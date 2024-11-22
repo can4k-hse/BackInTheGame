@@ -4,16 +4,14 @@
     {
         public static void Main()
         {
-            CSVTable table = new();
-            _ = table.ReadCSV("C:/Users/Alexander/Desktop/Project2/computer_games.csv", ',', 6);
-
-            GamesStatistics gs = new();
-
-            foreach (var record in table.Records)
+            try
             {
-                Game game = new (record);
-                gs.AddGame(game);
-                Console.WriteLine(game.GetRecord('_'));
+                UserMenu um = new();
+                um.Run();
+            }
+            catch (Exception)
+            {
+                return; // Ошибка консоли
             }
         }
     }

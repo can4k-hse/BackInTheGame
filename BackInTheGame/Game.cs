@@ -13,7 +13,7 @@ namespace BackInTheGame
         public readonly string Genre;
         public readonly string OperatingSystem;
         public readonly YearAndMonthDate DateReleased;
-        public readonly string DateReleasedString;
+        private readonly string DateReleasedString;
 
         public Game()
         {
@@ -53,10 +53,13 @@ namespace BackInTheGame
             DateReleased = new YearAndMonthDate(param[5]);
         }
 
-        public string GetRecord(char separator)
+        /// <summary>
+        /// Возвращает массив свойств объекта.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetRecordArray()
         {
-            return $"{Name}{separator}{Developer}{separator}{Producer}" +
-                $"{separator}{Genre}{separator}{OperatingSystem}{separator}{DateReleasedString}";
+            return [Name, Developer, Producer, Genre, OperatingSystem, DateReleasedString];
         }
     }
 }
